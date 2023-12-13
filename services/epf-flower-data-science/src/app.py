@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.api.router import router
+from fastapi.responses import RedirectResponse
 
 
 def get_application() -> FastAPI:
@@ -20,5 +21,10 @@ def get_application() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # Redirect to swagger UI (step 3)
+    @application.get("/")
+    def redirect_to_docs():
+        return RedirectResponse(url="/docs")
+    
     application.include_router(router)
     return application
