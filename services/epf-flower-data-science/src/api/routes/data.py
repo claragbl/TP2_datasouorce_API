@@ -1,5 +1,5 @@
 # from services.data import get_kaggle_data
-from src.services.data import get_kaggle_data, load_kaggle_data_json, process_species_data
+from src.services.data import get_kaggle_data, load_kaggle_data_json, process_species_data, split_dataset, train_and_save_model, make_prediction
 from fastapi import APIRouter
 
 router = APIRouter()
@@ -30,3 +30,28 @@ def process_data():
         return "Error: couldn't process the data."
 
     return dataset
+
+@router.get("/data/split")
+def split_data():
+    try:
+        train, test = split_dataset()
+    except:
+        return "Error: couldn't split the data."
+
+    return train, test
+
+@router.get("data/train")
+def train_model():
+    try:
+        train_and_save_model()
+    except:
+        return "Error: couldn't train the model."
+
+    return "ok"
+
+@router.get("data/prediction")
+def predict(SepalLengthCm: float, SepalWidthCm: float, PetalLengthCm: float, PetalWidthCm: float):
+    try: 
+        make_prediction(SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm)
+    except:
+        return "Error: couldn't make the prediction."
