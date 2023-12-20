@@ -1,24 +1,26 @@
 import os
 from kaggle.api.kaggle_api_extended import KaggleApi
 import opendatasets as od
+import pandas as pd
 
 def get_kaggle_data():
-    # od.download("https://www.kaggle.com/datasets/uciml/iris")
-
-    # # Create the 'data/' folder if it doesn't exist
-    # data_folder = '../data/'
-    # if not os.path.exists(data_folder):
-    #     os.makedirs(data_folder)
-
-    # # Move the downloaded file to the 'data/' folder
-    # shutil.move('Iris/Iris.csv', os.path.join(data_folder, 'Iris.csv'))
-
-    # # Delete the 'Iris/' folder
-    # shutil.rmtree('Iris/')
-
-    # return 'ok'
     api = KaggleApi()
     api.authenticate()
-    api.dataset_download_files('uciml/iris', path='data/', unzip=True)
+    api.dataset_download_files('uciml/iris', path='src/data/', unzip=True)
 
     return {"status": "Dataset downloaded successfully"}
+
+def load_kaggle_data_json():
+    file_path = 'src/data/Iris.csv'
+    try:
+        df = pd.read_csv(file_path)
+        return df.to_dict(orient='records')
+    except FileNotFoundError:
+        return {"error": "Dataset file not found."}
+
+def process_species_data():
+    data = load_kaggle_data_json()
+    for record in data:
+        if 'Species' in record and record['Species'].startswith('Iris-'):
+            record['Species'] = record['Species'].replace('Iris-', '')
+    return data
