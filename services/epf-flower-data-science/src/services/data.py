@@ -34,38 +34,38 @@ def process_species_data():
     return data
 
 def split_dataset():
-    dataset = process_species_data()
-    X_train, y_train, X_test, y_test = train_test_split(dataset, test_size=0.2, random_state=42)
-    return X_train, y_train, X_test, y_test # len(train), len(test) 
+    dataset = process_species_data() # (dictionary --> need to extract features and labels)
+    features = [list(record.values())[:-1] for record in dataset]
+    labels = [record['Species'] for record in dataset]
+    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test # len(train), len(test) 
 
 def train_and_save_model():
-    # split the dataset
-    X_train, y_train, X_test, y_test = split_dataset()
+    # Split
+    X_train, X_test, y_train, y_test = split_dataset()
 
-    # load the parameter of the classifier (in model_parameters.json)
+    # Load the parameter of the classifier
     with open('src/config/model_parameters.json') as f:
         parameters = json.load(f)
 
-    n_neighbors = int(parameters[0]['n_neighbors']) 
+    n_neighbors = int(parameters['n_neighbors']) 
 
-    #train the KNeighbors model
+    # Train the KNeighbors model
     KNN_model = KNeighborsClassifier(n_neighbors=n_neighbors)
     KNN_model.fit(X_train, y_train)
 
-    # Create models directory if it doesn't exist
+    # Save
     if not os.path.exists('src/models'):
-        os.makedirs('services/epf-flower-data-science/src/models')
+        os.makedirs('src/models')
 
-    # Save the model
-    #pickle.dump(KNN_model, open('KNN_model.sav', 'wb'))
-    joblib.dump(KNN_model, 'src/data/KNN_model.pkl')
-
-    return KNN_model
+    # #pickle.dump(KNN_model, open('KNN_model.sav', 'wb'))
+    joblib.dump(KNN_model, 'src/models/KNN_model.pkl')
 
 def make_prediction(SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm):
     model = train_and_save_model()
     predictions = model.predict([[SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm]])
-    logging(f"Predictions: {predictions}")
+    log = logging.getLogger("test pred")
+    log.info(predictions)
     return {"prediction": predictions[0]}
 
 

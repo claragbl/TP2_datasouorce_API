@@ -34,22 +34,22 @@ def process_data():
 @router.get("/data/split")
 def split_data():
     try:
-        train, test = split_dataset()
+        X_train, X_test, y_train, y_test = split_dataset()
     except:
         return "Error: couldn't split the data."
 
-    return train, test
+    return X_train, X_test, y_train, y_test
 
-@router.get("data/train")
+@router.get("/data/train")
 def train_model():
     try:
         train_and_save_model()
     except:
         return "Error: couldn't train the model."
 
-    return "ok"
+    return "ok, model trained and saved"
 
-@router.get("data/prediction")
+@router.get("/data/prediction")
 def predict(SepalLengthCm: float, SepalWidthCm: float, PetalLengthCm: float, PetalWidthCm: float):
     try: 
         make_prediction(SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm)
