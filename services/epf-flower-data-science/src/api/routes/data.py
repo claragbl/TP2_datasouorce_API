@@ -1,6 +1,6 @@
-# from services.data import get_kaggle_data
 from src.services.data import get_kaggle_data, load_kaggle_data_json, process_species_data, split_dataset, train_and_save_model, make_prediction
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -43,7 +43,7 @@ def split_data():
 @router.get("/data/train")
 def train_model():
     try:
-        train_and_save_model()
+        result = train_and_save_model()
     except:
         return "Error: couldn't train the model."
 
@@ -52,6 +52,8 @@ def train_model():
 @router.get("/data/prediction")
 def predict(SepalLengthCm: float, SepalWidthCm: float, PetalLengthCm: float, PetalWidthCm: float):
     try: 
-        make_prediction(SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm)
-    except:
-        return "Error: couldn't make the prediction."
+        prediction = make_prediction(SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm)
+    except Exception as e:
+        return f"Error: {str(e)}"
+    
+    return JSONResponse(content=prediction, status_code=200)
