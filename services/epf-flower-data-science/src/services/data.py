@@ -6,10 +6,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 import joblib
 import json
-import pickle
 from sklearn.linear_model import LogisticRegression
 from flask import Flask, request, jsonify
-import logging
+import firebase_admin
+from firebase_admin import firestore
+from firebase_admin import credentials, firestore
 
 def get_kaggle_data():
     api = KaggleApi()
@@ -66,3 +67,23 @@ def make_prediction(SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm):
     prediction = model.predict([[SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm]])
 
     return prediction.tolist()
+
+def create_firestore_collection():
+    cred = credentials.Certificate('api-projet-firebase-adminsdk.json')
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    parameters = {
+        "n_estimators": 100,
+        # criterion = function used to measure the quality of a split in decision tree models
+        "criterion": "gini",
+    }
+    collection_reference = db.collection("parameters").document("parameters") #.document to create a sub-document underneath the collection
+    collection_reference.set(parameters)
+
+    return collection_reference
+
+def get_firestore_parameters():
+    collection_reference = create_firestore_collection()
+    parameters = collection_reference.get().to_dict()
+
+    return parameters

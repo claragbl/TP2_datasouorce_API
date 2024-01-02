@@ -1,4 +1,4 @@
-from src.services.data import get_kaggle_data, load_kaggle_data_json, process_species_data, split_dataset, train_and_save_model, make_prediction
+from src.services.data import get_kaggle_data, load_kaggle_data_json, process_species_data, split_dataset, train_and_save_model, make_prediction, get_firestore_parameters, create_firestore_collection
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -43,7 +43,7 @@ def split_data():
 @router.get("/data/train")
 def train_model():
     try:
-        result = train_and_save_model()
+        train_and_save_model()
     except:
         return "Error: couldn't train the model."
 
@@ -57,3 +57,12 @@ def predict(SepalLengthCm: float, SepalWidthCm: float, PetalLengthCm: float, Pet
         return f"Error: {str(e)}"
     
     return JSONResponse(content=prediction, status_code=200)
+
+@router.get("/data/get_firestore_collection_parameters")
+def create_collection():
+    try:
+        parameters = get_firestore_parameters()
+    except:
+        return "Error: couldn't get Firestone collection parameters."
+
+    return parameters
