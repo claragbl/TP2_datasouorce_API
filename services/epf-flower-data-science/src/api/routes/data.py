@@ -11,7 +11,7 @@ def get_data():
     except:
         return "Error: couldn't download data."
 
-    return 'ok'
+    return "ok"
 
 @router.get("/data/dowload")
 def load_data():
